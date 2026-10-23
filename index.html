@@ -1,0 +1,863 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
+<title>Écran d'accueil — Atelier Jean Regniers</title>
+<style>
+/* ══════════════════════════════════════════════════════════════════
+   POLICES — charte AJR
+   Campton : titres et sous-titres uniquement (jamais le corps de texte)
+   Soleil  : corps de texte et sous-titres secondaires
+   Fichiers servis en local : aucune dépendance Internet à l'affichage.
+   ══════════════════════════════════════════════════════════════════ */
+@font-face { font-family:'Campton'; src:url('assets/fonts/CamptonMedium.otf') format('opentype');    font-weight:500; font-display:swap; }
+@font-face { font-family:'Campton'; src:url('assets/fonts/CamptonSemiBold.otf') format('opentype');  font-weight:600; font-display:swap; }
+@font-face { font-family:'Campton'; src:url('assets/fonts/CamptonBold.otf') format('opentype');      font-weight:700; font-display:swap; }
+@font-face { font-family:'Campton'; src:url('assets/fonts/CamptonExtraBold.otf') format('opentype'); font-weight:800; font-display:swap; }
+@font-face { font-family:'Campton'; src:url('assets/fonts/CamptonBlack.otf') format('opentype');     font-weight:900; font-display:swap; }
+@font-face { font-family:'Soleil';  src:url('assets/fonts/SoleilLight.otf') format('opentype');      font-weight:300; font-display:swap; }
+@font-face { font-family:'Soleil';  src:url('assets/fonts/SoleilBook.otf') format('opentype');       font-weight:400; font-display:swap; }
+@font-face { font-family:'Soleil';  src:url('assets/fonts/SoleilRegular.otf') format('opentype');    font-weight:500; font-display:swap; }
+@font-face { font-family:'Soleil';  src:url('assets/fonts/SoleilBold.otf') format('opentype');       font-weight:700; font-display:swap; }
+
+:root {
+  /* Couleurs officielles — brandbook AJR p.11 */
+  --bleu:   #2c2c7a;
+  --orange: #F17700;
+  --vert:   #ABBE00;
+  --rose:   #e6007d;
+
+  /* Déclinaisons d'écran dérivées du bleu de marque */
+  --fond-haut: #322f86;
+  --fond-bas:  #1b1950;
+  --encre:     #ffffff;
+  --encre-2:   rgba(255,255,255,.80);
+  --encre-3:   rgba(255,255,255,.58);
+
+  --surface:      rgba(255,255,255,.065);
+  --surface-fort: rgba(255,255,255,.10);
+  --filet:        rgba(255,255,255,.16);
+
+  --accent: var(--vert);          /* redéfini par chaque vue */
+  --rail: 128px;
+}
+
+* { box-sizing:border-box; margin:0; padding:0; }
+html, body { height:100%; background:var(--fond-bas); overflow:hidden; }
+body {
+  font-family:'Soleil','Helvetica Neue','Segoe UI',Helvetica,Arial,sans-serif;
+  color:var(--encre);
+  -webkit-font-smoothing:antialiased;
+  cursor:none;
+}
+
+/* ── Scène 1920×1080 mise à l'échelle ─────────────────────────────── */
+#scene {
+  position:absolute; top:0; left:0; width:1920px; height:1080px;
+  transform-origin:0 0; overflow:hidden;
+  background:linear-gradient(170deg, var(--fond-haut) 0%, var(--fond-bas) 100%);
+}
+/* Filigrane : le symbole de marque, discret et statique (aucun coût GPU) */
+#filigrane {
+  position:absolute; right:-170px; bottom:calc(var(--rail) - 150px);
+  width:900px; opacity:.055; pointer-events:none; user-select:none;
+}
+
+/* ── Vues ─────────────────────────────────────────────────────────── */
+.vue {
+  position:absolute; inset:0 0 var(--rail) 0;
+  display:none; flex-direction:column;
+  padding:60px 96px;
+}
+.vue.on { display:flex; }
+/* Entrée : opacité + translation uniquement → composité par le GPU */
+.vue.on > * { animation:monte .62s cubic-bezier(.22,.68,.26,1) both; animation-delay:calc(var(--i,0) * .07s); }
+@keyframes monte { from { opacity:0; transform:translateY(24px); } to { opacity:1; transform:none; } }
+/* Filet de sécurité : une animation figée ou jamais démarrée ne doit jamais
+   laisser l'écran vide. La classe « sure » est posée par le script peu après
+   chaque changement de vue et force l'état final. */
+.vue.sure > * { animation:none !important; opacity:1 !important; transform:none !important; }
+
+/* ── Vocabulaire typographique (charte AJR) ───────────────────────── */
+.surtitre {
+  font-family:'Campton','Avenir Next','Century Gothic',Futura,'Trebuchet MS',sans-serif; font-weight:600;
+  font-size:30px; letter-spacing:.22em; text-transform:uppercase;
+  color:var(--accent);
+}
+h1 {
+  font-family:'Campton','Avenir Next','Century Gothic',Futura,'Trebuchet MS',sans-serif; font-weight:700;
+  font-size:94px; line-height:1.02; letter-spacing:-.015em;
+}
+h1.geant { font-size:132px; }
+.soustitre {
+  font-family:'Campton','Avenir Next','Century Gothic',Futura,'Trebuchet MS',sans-serif; font-weight:500;
+  font-size:46px; line-height:1.14; color:var(--encre-2);
+}
+/* Le filet court du brandbook, placé au-dessus des paragraphes */
+.filet::before {
+  content:''; display:block; width:56px; height:4px; border-radius:2px;
+  background:var(--accent); margin-bottom:26px;
+}
+p.texte { font-size:33px; line-height:1.48; font-weight:400; color:var(--encre-2); max-width:1180px; }
+
+.carte {
+  background:var(--surface); border:1.5px solid var(--filet); border-radius:28px;
+}
+.puce {
+  width:84px; height:84px; border-radius:22px; flex:none;
+  display:grid; place-items:center; background:var(--surface-fort);
+  color:var(--accent);
+}
+.puce svg { width:46px; height:46px; }
+svg.i { fill:none; stroke:currentColor; stroke-width:1.75; stroke-linecap:round; stroke-linejoin:round; }
+
+/* ══ 1 · ACCUEIL ══════════════════════════════════════════════════ */
+#v-accueil { padding:0; }
+#v-accueil .mosaique { position:absolute; inset:0; display:grid; grid-template-columns:repeat(3,1fr); grid-template-rows:repeat(2,1fr); gap:6px; }
+#v-accueil .mosaique img { width:100%; height:100%; object-fit:cover; filter:grayscale(1); opacity:.30; }
+#v-accueil .voile { position:absolute; inset:0; background:
+  radial-gradient(1200px 700px at 50% 45%, rgba(44,44,122,.55) 0%, rgba(27,25,80,.93) 78%); }
+#v-accueil .centre {
+  position:relative; height:100%; display:flex; flex-direction:column;
+  align-items:center; justify-content:center; gap:44px;
+}
+#v-accueil .marque { width:860px; }
+#v-accueil .mot {
+  font-family:'Campton','Avenir Next','Century Gothic',Futura,'Trebuchet MS',sans-serif; font-weight:700; font-size:168px;
+  letter-spacing:.055em; text-transform:uppercase; line-height:1;
+}
+#v-accueil .ruban { display:flex; gap:12px; }
+#v-accueil .ruban i { display:block; width:78px; height:9px; border-radius:5px; }
+
+/* ══ 2 · ANNONCE ══════════════════════════════════════════════════ */
+#v-annonce { align-items:center; justify-content:center; text-align:center; gap:38px; }
+#v-annonce .pastille {
+  width:150px; height:150px; border-radius:50%; display:grid; place-items:center;
+  background:var(--surface-fort); border:3px solid var(--accent); color:var(--accent);
+}
+#v-annonce .pastille svg { width:78px; height:78px; stroke-width:2; }
+#v-annonce h1 { max-width:1560px; }
+#v-annonce .detail { font-size:40px; line-height:1.4; color:var(--encre-2); max-width:1360px; }
+
+/* ══ 3 · VISION ═══════════════════════════════════════════════════ */
+#v-vision .citation {
+  font-family:'Campton','Avenir Next','Century Gothic',Futura,'Trebuchet MS',sans-serif; font-weight:500; font-size:50px; line-height:1.28;
+  color:var(--encre); max-width:1500px; position:relative; padding-left:38px;
+  border-left:6px solid var(--accent);
+}
+#v-vision .bas { margin-top:auto; display:flex; align-items:flex-end; justify-content:space-between; gap:60px; }
+#v-vision .labels { display:flex; gap:18px; }
+.etiquette {
+  display:inline-flex; align-items:center; gap:14px;
+  padding:16px 34px; border-radius:999px; font-size:30px; font-weight:700;
+  font-family:'Campton','Avenir Next','Century Gothic',Futura,'Trebuchet MS',sans-serif;
+  background:var(--surface); border:1.5px solid var(--filet);
+}
+.etiquette svg { width:30px; height:30px; color:var(--vert); }
+#v-vision .signature { font-size:27px; color:var(--encre-3); text-align:right; line-height:1.45; }
+
+/* ══ 4 · ENGAGEMENTS ══════════════════════════════════════════════ */
+#v-engagements .grille { margin:auto 0 0; display:grid; grid-template-columns:repeat(5,1fr); gap:24px; }
+#v-engagements .carte { padding:38px 30px 34px; display:flex; flex-direction:column; gap:22px; }
+#v-engagements .num {
+  font-family:'Campton','Avenir Next','Century Gothic',Futura,'Trebuchet MS',sans-serif; font-weight:800; font-size:30px;
+  color:var(--teinte); letter-spacing:.04em;
+}
+#v-engagements h3 { font-family:'Campton','Avenir Next','Century Gothic',Futura,'Trebuchet MS',sans-serif; font-weight:700; font-size:34px; line-height:1.14; }
+#v-engagements p { font-size:26px; line-height:1.4; color:var(--encre-2); font-weight:400; }
+#v-engagements .carte .barre { height:5px; width:48px; border-radius:3px; background:var(--teinte); }
+
+/* ══ 5 · SÉCURITÉ ═════════════════════════════════════════════════ */
+#v-secu .liste { margin:auto 0; display:grid; gap:26px; }
+#v-secu .ligne { display:flex; align-items:center; gap:36px; padding:40px 48px; }
+#v-secu .ligne span { font-size:50px; line-height:1.22; font-weight:400; }
+#v-secu .ligne b { font-weight:700; color:var(--accent); }
+
+/* ══ 6 · ALCOOL ═══════════════════════════════════════════════════ */
+#v-alcool .duo { margin:auto 0; display:grid; grid-template-columns:1fr 1fr; gap:36px; }
+#v-alcool .carte { padding:44px; display:flex; align-items:center; gap:40px; }
+#v-alcool img { width:260px; height:260px; border-radius:24px; object-fit:cover; flex:none; background:#fff; }
+#v-alcool .rond {
+  width:260px; height:260px; border-radius:24px; flex:none; display:grid; place-items:center;
+  background:var(--surface-fort); border:2px solid var(--accent); color:var(--accent);
+}
+#v-alcool .rond svg { width:128px; height:128px; stroke-width:1.5; }
+#v-alcool h3 { font-family:'Campton','Avenir Next','Century Gothic',Futura,'Trebuchet MS',sans-serif; font-weight:700; font-size:54px; margin-bottom:18px; }
+#v-alcool li { font-size:30px; line-height:1.5; color:var(--encre-2); list-style:none; display:flex; gap:14px; }
+#v-alcool li::before { content:''; width:10px; height:10px; border-radius:50%; background:var(--accent); flex:none; margin-top:14px; }
+
+/* ══ 7 · DOCUMENT C32A ════════════════════════════════════════════ */
+#v-c32a .corps { margin:auto 0 0; display:grid; grid-template-columns:auto auto auto; align-items:center; justify-content:center; gap:56px; }
+#v-c32a .cadre { background:#fff; border-radius:26px; padding:26px; box-shadow:0 26px 60px rgba(0,0,0,.34); }
+#v-c32a .cadre img { display:block; height:360px; width:auto; }
+#v-c32a .cadre.billets img { height:290px; }
+#v-c32a .egal { display:grid; gap:20px; }
+#v-c32a .egal i { display:block; width:92px; height:20px; border-radius:5px; background:var(--accent); }
+#v-c32a .pied { margin-top:46px; display:flex; align-items:center; justify-content:space-between; }
+#v-c32a .consigne {
+  display:inline-flex; align-items:center; gap:22px; padding:22px 48px; border-radius:999px;
+  font-family:'Campton','Avenir Next','Century Gothic',Futura,'Trebuchet MS',sans-serif; font-weight:700; font-size:48px;
+  background:var(--surface-fort); border:2.5px solid var(--accent);
+}
+#v-c32a .consigne svg { width:52px; height:52px; color:var(--accent); }
+#v-c32a .signe { font-size:30px; color:var(--encre-3); }
+
+/* ══ 8 · COMPTEUR ═════════════════════════════════════════════════ */
+#v-compteur { align-items:center; justify-content:center; text-align:center; gap:4px; }
+#v-compteur .nombre {
+  font-family:'Campton','Avenir Next','Century Gothic',Futura,'Trebuchet MS',sans-serif; font-weight:900;
+  font-size:430px; line-height:.92; letter-spacing:-.025em;
+  font-variant-numeric:tabular-nums;
+  color:var(--vert);
+}
+#v-compteur .legende {
+  font-family:'Campton','Avenir Next','Century Gothic',Futura,'Trebuchet MS',sans-serif; font-weight:700; font-size:66px;
+  letter-spacing:.02em; text-transform:uppercase; margin-top:6px;
+}
+#v-compteur .depuis { font-size:30px; color:var(--encre-3); margin-top:26px; }
+
+/* ══ 9 · MÉTÉO ════════════════════════════════════════════════════ */
+#v-meteo .haut { display:flex; align-items:flex-start; justify-content:space-between; }
+#v-meteo .corps { margin:auto 0 0; display:grid; grid-template-columns:minmax(560px,.82fr) 1.18fr; gap:40px; }
+#v-meteo .maintenant { padding:40px 44px; display:flex; flex-direction:column; }
+#v-meteo .ville { font-family:'Campton','Avenir Next','Century Gothic',Futura,'Trebuchet MS',sans-serif; font-weight:600; font-size:40px; color:var(--encre-2); }
+#v-meteo .temp { display:flex; align-items:center; gap:22px; margin:12px 0 28px; }
+#v-meteo .temp .deg { font-family:'Campton','Avenir Next','Century Gothic',Futura,'Trebuchet MS',sans-serif; font-weight:700; font-size:176px; line-height:1; font-variant-numeric:tabular-nums; }
+#v-meteo .temp svg, #v-meteo .temp img { width:132px; height:132px; }
+#v-meteo .mesures { display:grid; grid-template-columns:1fr 1fr; gap:18px 26px; margin-top:auto; }
+#v-meteo .mesure { display:flex; align-items:center; gap:14px; font-size:27px; color:var(--encre-2); }
+#v-meteo .mesure svg { width:30px; height:30px; color:var(--accent); flex:none; }
+#v-meteo .jours { display:grid; gap:18px; }
+#v-meteo .jour { padding:26px 36px; display:grid; grid-template-columns:1fr 92px auto; align-items:center; gap:30px; }
+#v-meteo .jour .nom { font-family:'Campton','Avenir Next','Century Gothic',Futura,'Trebuchet MS',sans-serif; font-weight:600; font-size:38px; text-transform:capitalize; }
+#v-meteo .jour .ic { width:76px; height:76px; }
+#v-meteo .jour .tt { font-family:'Campton','Avenir Next','Century Gothic',Futura,'Trebuchet MS',sans-serif; font-size:44px; font-variant-numeric:tabular-nums; white-space:nowrap; }
+#v-meteo .jour .tt b { font-weight:700; }
+#v-meteo .jour .tt span { font-weight:500; color:var(--encre-3); }
+#v-meteo .indispo { font-size:34px; color:var(--encre-3); }
+#v-meteo .perime { font-size:24px; color:var(--orange); margin-top:14px; }
+
+/* ══ 10 · ÉQUIPE ══════════════════════════════════════════════════ */
+#v-equipe .galerie { margin:auto 0 0; display:grid; grid-template-columns:repeat(3,1fr); gap:24px; }
+#v-equipe figure { border-radius:24px; overflow:hidden; aspect-ratio:16/9; background:var(--surface); }
+#v-equipe img { width:100%; height:100%; object-fit:cover; display:block; }
+
+/* ══ 11 · HYDRATATION ═════════════════════════════════════════════ */
+#v-hydra .trio { margin:auto 0; display:grid; grid-template-columns:repeat(3,1fr); gap:30px; }
+#v-hydra .carte { padding:40px 34px; display:flex; flex-direction:column; gap:24px; }
+#v-hydra h3 { font-family:'Campton','Avenir Next','Century Gothic',Futura,'Trebuchet MS',sans-serif; font-weight:700; font-size:38px; }
+#v-hydra p { font-size:28px; line-height:1.42; color:var(--encre-2); }
+
+/* ══ BANDEAU BAS ══════════════════════════════════════════════════ */
+#rail {
+  position:absolute; left:0; right:0; bottom:0; height:var(--rail); z-index:10;
+  display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:40px;
+  padding:0 60px; background:var(--bleu);
+}
+#rail::before { content:''; position:absolute; left:0; right:0; top:0; height:6px; background:rgba(255,255,255,.14); }
+#jauge {
+  position:absolute; left:0; top:0; height:6px; width:100%;
+  background:var(--accent); transform:scaleX(0); transform-origin:0 50%;
+}
+#jauge.court { animation:jauge linear forwards; animation-duration:var(--duree); }
+@keyframes jauge { from { transform:scaleX(0); } to { transform:scaleX(1); } }
+
+#rail .gauche { display:flex; align-items:center; gap:34px; }
+#rail .logo { height:58px; width:auto; }
+.compteur-chip {
+  display:flex; align-items:baseline; gap:12px;
+  padding:10px 24px; border-radius:999px;
+  background:rgba(255,255,255,.10); border:1.5px solid rgba(255,255,255,.20);
+}
+.compteur-chip b { font-family:'Campton','Avenir Next','Century Gothic',Futura,'Trebuchet MS',sans-serif; font-weight:800; font-size:38px; color:var(--vert); font-variant-numeric:tabular-nums; }
+.compteur-chip span { font-size:22px; color:var(--encre-2); }
+
+#points { display:flex; gap:11px; align-items:center; }
+#points i { display:block; width:11px; height:11px; border-radius:50%; background:rgba(255,255,255,.30); }
+#points i.faite { background:rgba(255,255,255,.60); }
+#points i.active { width:40px; border-radius:6px; background:#fff; }
+
+#rail .droite { text-align:right; line-height:1; }
+#heure { font-family:'Campton','Avenir Next','Century Gothic',Futura,'Trebuchet MS',sans-serif; font-weight:700; font-size:72px; font-variant-numeric:tabular-nums; letter-spacing:-.01em; }
+#date  { font-size:25px; color:var(--encre-2); margin-top:9px; }
+
+#etat-pause {
+  position:absolute; right:30px; top:26px;
+  font-family:'Campton','Avenir Next','Century Gothic',Futura,'Trebuchet MS',sans-serif; font-weight:700; font-size:22px;
+  letter-spacing:.3em; text-transform:uppercase; color:var(--orange);
+  padding:10px 26px; border-radius:999px; background:rgba(0,0,0,.35);
+  opacity:0; pointer-events:none; z-index:20;
+}
+body.pause #etat-pause { opacity:1; }
+/* Seule la jauge se fige : les animations d'entrée doivent pouvoir se terminer. */
+body.pause #jauge { animation-play-state:paused; }
+</style>
+</head>
+<body>
+
+<div id="scene">
+  <img id="filigrane" src="assets/symbol.png" alt="">
+
+  <!-- ══ 1 · ACCUEIL ══ -->
+  <section class="vue" id="v-accueil" data-duree="8" data-accent="--orange">
+    <div class="mosaique">
+      <img src="assets/photo-1.jpg" alt=""><img src="assets/photo-2.jpg" alt=""><img src="assets/photo-3.jpg" alt="">
+      <img src="assets/photo-4.jpg" alt=""><img src="assets/photo-5.jpg" alt=""><img src="assets/photo-6.jpg" alt="">
+    </div>
+    <div class="voile"></div>
+    <div class="centre">
+      <img class="marque" src="assets/logo-full-white.png" alt="Atelier Jean Regniers">
+      <div class="mot">Bienvenue</div>
+      <div class="ruban">
+        <i style="background:var(--bleu);border:1px solid rgba(255,255,255,.3)"></i>
+        <i style="background:var(--vert)"></i>
+        <i style="background:var(--orange)"></i>
+        <i style="background:var(--rose)"></i>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 2 · ANNONCE (affichée seulement si CONFIG.annonce est remplie) ══ -->
+  <section class="vue" id="v-annonce" data-duree="12" data-accent="--orange">
+    <div class="pastille" style="--i:0"><svg class="i" viewBox="0 0 24 24"><path d="M12 8.5v5M12 17h.01"/><path d="M10.3 3.3 1.8 17.6A2 2 0 0 0 3.5 20.6h17a2 2 0 0 0 1.7-3L13.7 3.3a2 2 0 0 0-3.4 0z"/></svg></div>
+    <div class="surtitre" style="--i:1">Information importante</div>
+    <h1 id="annonce-titre" style="--i:2"></h1>
+    <div class="detail" id="annonce-detail" style="--i:3"></div>
+  </section>
+
+  <!-- ══ 3 · VISION ══ -->
+  <section class="vue" id="v-vision" data-duree="15" data-accent="--vert">
+    <div class="surtitre" style="--i:0">Politique interne</div>
+    <h1 style="--i:1;margin-top:14px">Tous acteurs<br>de la réussite</h1>
+    <div class="citation" style="--i:2;margin-top:46px">Parce que notre réussite, c'est avant tout celle de nos collaborateurs.</div>
+    <p class="texte filet" style="--i:3;margin-top:46px">Au fil des années, l'Atelier Jean Regniers a démontré qu'il est possible d'allier performance industrielle et valeurs humaines fortes. Chaque jour, nos équipes prouvent que la qualité, la solidarité et le savoir-faire avancent ensemble.</p>
+    <div class="bas" style="--i:4">
+      <div class="labels">
+        <span class="etiquette"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg>ISO 9001</span>
+        <span class="etiquette"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg>IFS</span>
+        <span class="etiquette"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg>Ecolabel</span>
+      </div>
+      <div class="signature">Cette vision, nous la construisons ensemble,<br>chaque jour, à travers nos gestes et nos idées.</div>
+    </div>
+  </section>
+
+  <!-- ══ 4 · ENGAGEMENTS ══ -->
+  <section class="vue" id="v-engagements" data-duree="16" data-accent="--vert">
+    <div class="surtitre" style="--i:0">Nos engagements</div>
+    <h1 style="--i:1;margin-top:14px">Cinq caps, une direction</h1>
+    <div class="grille" style="--i:2">
+      <div class="carte" style="--teinte:var(--rose)">
+        <div class="num">01</div><div class="barre"></div>
+        <h3>Croissance de l'emploi</h3>
+        <p>Accroître l'emploi en favorisant l'inclusivité.</p>
+      </div>
+      <div class="carte" style="--teinte:var(--orange)">
+        <div class="num">02</div><div class="barre"></div>
+        <h3>Référence industrielle</h3>
+        <p>Être un acteur reconnu en manufacture, façonnage et services.</p>
+      </div>
+      <div class="carte" style="--teinte:var(--vert)">
+        <div class="num">03</div><div class="barre"></div>
+        <h3>Partenariats durables</h3>
+        <p>Développer des partenariats responsables et inclusifs.</p>
+      </div>
+      <div class="carte" style="--teinte:var(--rose)">
+        <div class="num">04</div><div class="barre"></div>
+        <h3>Management de qualité</h3>
+        <p>Se distinguer par un système qualité rigoureux.</p>
+      </div>
+      <div class="carte" style="--teinte:var(--orange)">
+        <div class="num">05</div><div class="barre"></div>
+        <h3>Innovation &amp; visibilité</h3>
+        <p>Renforcer la communication interne et la cohérence entre tous les secteurs.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 5 · SÉCURITÉ ══ -->
+  <section class="vue" id="v-secu" data-duree="13" data-accent="--orange">
+    <div class="surtitre" style="--i:0">Sécurité</div>
+    <h1 style="--i:1;margin-top:14px">Les consignes du jour</h1>
+    <div class="liste">
+      <div class="carte ligne" style="--i:2">
+        <span class="puce"><svg class="i" viewBox="0 0 24 24"><path d="M12 3 4 6v6c0 5 3.4 8.3 8 9 4.6-.7 8-4 8-9V6z"/><path d="m8.8 12 2.3 2.3 4.1-4.6"/></svg></span>
+        <span>Portez toujours vos <b>EPI</b>, adaptés à votre poste et aux risques</span>
+      </div>
+      <div class="carte ligne" style="--i:3">
+        <span class="puce"><svg class="i" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2.5"/><circle cx="9" cy="10.5" r="2.2"/><path d="M5.6 16.6a3.8 3.8 0 0 1 6.8 0M14.5 9.5h4M14.5 13.5h4"/></svg></span>
+        <span>À chaque entrée et sortie, pensez à vous <b>badger</b></span>
+      </div>
+      <div class="carte ligne" style="--i:4">
+        <span class="puce"><svg class="i" viewBox="0 0 24 24"><path d="M3 7.5h18v5H3zM5 12.5V21M19 12.5V21M5 7.5V4M19 7.5V4"/><path d="m6.5 12.3 4-4.6M11.5 12.3l4-4.6M16.5 12.3l3-3.4"/></svg></span>
+        <span>Route <b>temporairement fermée</b> vers le futur atelier</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 6 · ALCOOL ══ -->
+  <section class="vue" id="v-alcool" data-duree="12" data-accent="--orange">
+    <div class="surtitre" style="--i:0">Alcool &amp; travail</div>
+    <h1 style="--i:1;margin-top:14px">Zéro alcool, zéro risque</h1>
+    <div class="duo">
+      <div class="carte" style="--i:2">
+        <img src="assets/alcool.jpg" alt="">
+        <div>
+          <h3>Ni avant, ni pendant</h3>
+          <ul>
+            <li>L'alcool multiplie le risque d'accident</li>
+            <li>La règle vaut pour tous les postes, sans exception</li>
+          </ul>
+        </div>
+      </div>
+      <div class="carte" style="--i:3">
+        <div class="rond"><svg class="i" viewBox="0 0 24 24"><path d="M15.4 4.7a3.4 3.4 0 0 1 0 6.6M17.6 14.6c2.4.8 3.9 2.6 3.9 5.4"/><circle cx="9" cy="8" r="3.6"/><path d="M2.5 20c0-3.7 2.9-6.2 6.5-6.2s6.5 2.5 6.5 6.2"/></svg></div>
+        <div>
+          <h3>Besoin d'aide&nbsp;?</h3>
+          <ul>
+            <li>Parlez-en à votre responsable ou au service RH</li>
+            <li>La démarche reste confidentielle</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 7 · DOCUMENT C32A ══ -->
+  <section class="vue" id="v-c32a" data-duree="11" data-accent="--rose">
+    <div class="surtitre" style="--i:0">Administratif</div>
+    <h1 style="--i:1;margin-top:14px">Le document C32A, c'est votre argent</h1>
+    <div class="corps" style="--i:2">
+      <div class="cadre"><img src="assets/c32a-doc.jpg" alt="Formulaire C32A"></div>
+      <div class="egal"><i></i><i></i></div>
+      <div class="cadre billets"><img src="assets/c32a-money.jpg" alt="Billets"></div>
+    </div>
+    <div class="pied" style="--i:3">
+      <span class="consigne"><svg class="i" viewBox="0 0 24 24"><path d="M12 3 4 6v6c0 5 3.4 8.3 8 9 4.6-.7 8-4 8-9V6z"/><path d="M12 8.5v5M12 16.8h.01"/></svg>À ne surtout pas perdre</span>
+      <span class="signe">— Anne-Sophie</span>
+    </div>
+  </section>
+
+  <!-- ══ 8 · COMPTEUR ══ -->
+  <section class="vue" id="v-compteur" data-duree="9" data-accent="--vert">
+    <div class="surtitre" style="--i:0">Ensemble, restons prudents</div>
+    <div class="nombre" id="compteur-nombre" style="--i:1">0</div>
+    <div class="legende" style="--i:2">Jours sans accident de travail</div>
+    <div class="depuis" id="compteur-depuis" style="--i:3"></div>
+  </section>
+
+  <!-- ══ 9 · MÉTÉO ══ -->
+  <section class="vue" id="v-meteo" data-duree="14" data-accent="--vert">
+    <div class="haut" style="--i:0">
+      <div>
+        <div class="surtitre">Météo</div>
+        <h1 style="margin-top:14px">Aujourd'hui et les prochains jours</h1>
+      </div>
+    </div>
+    <div class="corps" style="--i:1" id="meteo-corps">
+      <div class="carte maintenant"><div class="indispo">Météo en cours de chargement…</div></div>
+      <div class="jours"></div>
+    </div>
+  </section>
+
+  <!-- ══ 10 · ÉQUIPE ══ -->
+  <section class="vue" id="v-equipe" data-duree="10" data-accent="--rose">
+    <div class="surtitre" style="--i:0">Nos équipes</div>
+    <h1 style="--i:1;margin-top:14px">Le savoir-faire, au quotidien</h1>
+    <div class="galerie" style="--i:2">
+      <figure><img src="assets/photo-1.jpg" alt=""></figure>
+      <figure><img src="assets/photo-2.jpg" alt=""></figure>
+      <figure><img src="assets/photo-3.jpg" alt=""></figure>
+      <figure><img src="assets/photo-4.jpg" alt=""></figure>
+      <figure><img src="assets/photo-5.jpg" alt=""></figure>
+      <figure><img src="assets/photo-6.jpg" alt=""></figure>
+    </div>
+  </section>
+
+  <!-- ══ 11 · HYDRATATION (forte chaleur uniquement) ══ -->
+  <section class="vue" id="v-hydra" data-duree="12" data-accent="--orange">
+    <div class="surtitre" style="--i:0">Forte chaleur</div>
+    <h1 style="--i:1;margin-top:14px">Pensez à vous hydrater</h1>
+    <div class="trio">
+      <div class="carte" style="--i:2">
+        <span class="puce"><svg class="i" viewBox="0 0 24 24"><path d="M6.5 3h11l-1.3 17a1 1 0 0 1-1 .9H8.8a1 1 0 0 1-1-.9z"/><path d="M7.1 10.5h9.8"/></svg></span>
+        <h3>Buvez régulièrement</h3>
+        <p>Un verre d'eau toutes les 20 à 30 minutes, même sans soif.</p>
+      </div>
+      <div class="carte" style="--i:3">
+        <span class="puce"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M4.6 4.6 6 6M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4 6 18M18 6l1.4-1.4"/></svg></span>
+        <h3>Protégez-vous du soleil</h3>
+        <p>Chapeau et vêtements légers dès que vous travaillez dehors.</p>
+      </div>
+      <div class="carte" style="--i:4">
+        <span class="puce"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.6 2M9 2.5h6"/></svg></span>
+        <h3>Prenez vos pauses</h3>
+        <p>Respectez les horaires et mettez-vous à l'ombre ou au frais.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ BANDEAU BAS ══ -->
+  <div id="rail">
+    <div id="jauge"></div>
+    <div class="gauche">
+      <img class="logo" src="assets/logo-lockup-white.png" alt="Atelier Jean Regniers">
+      <div class="compteur-chip"><b id="chip-jours">—</b><span>jours sans accident</span></div>
+    </div>
+    <div id="points"></div>
+    <div class="droite">
+      <div id="heure">--:--:--</div>
+      <div id="date"></div>
+    </div>
+  </div>
+  <div id="etat-pause">en pause</div>
+</div>
+
+<script>
+'use strict';
+/* ═══════════════════════════════════════════════════════════════════
+   RÉGLAGES — c'est la seule partie à modifier au quotidien
+   ═══════════════════════════════════════════════════════════════════ */
+const CONFIG = {
+  // Date du dernier accident de travail. Le compteur se met à jour tout seul.
+  dernierAccident: '2026-06-17',
+
+  // Message exceptionnel. Laissez titre vide ("") pour masquer la vue Annonce.
+  annonce: { titre: '', detail: '' },
+
+  // Météo (Open-Meteo, sans clé d'accès)
+  ville: 'Bienne-lez-Happart',
+  latitude: 50.38,
+  longitude: 4.25,
+
+  // La vue Hydratation n'apparaît qu'à partir de cette température maximale.
+  seuilChaleur: 28,
+
+  // Minutes entre deux relevés météo
+  rafraichirMeteo: 30,
+
+  // Heure du rechargement nocturne (prise en compte des mises à jour)
+  heureRechargement: 3
+};
+
+/* Paramètres d'adresse pour les tests :
+   ?tout=1      affiche toutes les vues, y compris les conditionnelles
+   ?vue=5       démarre sur la vue n° 5
+   ?chaleur=1   force la vue Hydratation                                  */
+const OPT = new URLSearchParams(location.search);
+
+/* ═══════════════════════════════════════════════════════════════════
+   OUTILS
+   ═══════════════════════════════════════════════════════════════════ */
+const $  = (s, r) => (r || document).querySelector(s);
+const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
+
+// Tout accès au stockage local est protégé : navigation privée, quota, etc.
+const Memoire = {
+  lire(cle) { try { const v = localStorage.getItem(cle); return v ? JSON.parse(v) : null; } catch (e) { return null; } },
+  ecrire(cle, val) { try { localStorage.setItem(cle, JSON.stringify(val)); } catch (e) { /* sans effet */ } }
+};
+
+/* ═══════════════════════════════════════════════════════════════════
+   MISE À L'ÉCHELLE 16:9
+   ═══════════════════════════════════════════════════════════════════ */
+const scene = $('#scene');
+function ajuster() {
+  const k = Math.min(innerWidth / 1920, innerHeight / 1080);
+  scene.style.transform =
+    `translate(${(innerWidth - 1920 * k) / 2}px, ${(innerHeight - 1080 * k) / 2}px) scale(${k})`;
+}
+addEventListener('resize', ajuster);
+ajuster();
+
+/* ═══════════════════════════════════════════════════════════════════
+   HORLOGE  (+ rechargement nocturne)
+   ═══════════════════════════════════════════════════════════════════ */
+const elHeure = $('#heure'), elDate = $('#date');
+let dernierRechargement = null;
+function horloge() {
+  const n = new Date();
+  elHeure.textContent = n.toLocaleTimeString('fr-BE', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+  const d = n.toLocaleDateString('fr-BE', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  elDate.textContent = d.charAt(0).toUpperCase() + d.slice(1);
+
+  const jour = n.toDateString();
+  if (n.getHours() === CONFIG.heureRechargement && dernierRechargement && dernierRechargement !== jour) {
+    location.reload();
+  }
+  dernierRechargement = jour;
+}
+horloge();
+setInterval(horloge, 1000);
+
+/* ═══════════════════════════════════════════════════════════════════
+   COMPTEUR DE JOURS SANS ACCIDENT
+   ═══════════════════════════════════════════════════════════════════ */
+function joursSansAccident() {
+  const depart = new Date(CONFIG.dernierAccident + 'T12:00:00');
+  if (isNaN(depart)) return null;
+  const aujourdhui = new Date(); aujourdhui.setHours(12, 0, 0, 0);
+  return Math.max(0, Math.round((aujourdhui - depart) / 86400000));
+}
+function majCompteur() {
+  const n = joursSansAccident();
+  $('#chip-jours').textContent = n === null ? '—' : n;
+  const depuis = new Date(CONFIG.dernierAccident + 'T12:00:00');
+  $('#compteur-depuis').textContent = isNaN(depuis) ? ''
+    : 'Depuis le ' + depuis.toLocaleDateString('fr-BE', { day: 'numeric', month: 'long', year: 'numeric' });
+}
+majCompteur();
+setInterval(majCompteur, 600000);
+
+// Décompte animé, lancé à chaque passage sur la vue Compteur
+function animerNombre(el, cible) {
+  if (cible === null) { el.textContent = '—'; return; }
+  const debut = performance.now(), duree = 1500;
+  function pas(t) {
+    const p = Math.min(1, (t - debut) / duree);
+    el.textContent = Math.round(cible * (1 - Math.pow(1 - p, 3)));
+    if (p < 1) requestAnimationFrame(pas);
+  }
+  requestAnimationFrame(pas);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   MÉTÉO — Open-Meteo, avec délai maximal, cache et repli
+   ═══════════════════════════════════════════════════════════════════ */
+let meteo = Memoire.lire('ajr-meteo');   // on repart du dernier relevé connu
+
+const ICONES = {
+  soleil:   '<svg class="i" viewBox="0 0 24 24" style="stroke:var(--orange)"><circle cx="12" cy="12" r="4.2" fill="var(--orange)" stroke="none"/><path d="M12 2.2v2.4M12 19.4v2.4M4.3 4.3 6 6M18 18l1.7 1.7M2.2 12h2.4M19.4 12h2.4M4.3 19.7 6 18M18 6l1.7-1.7"/></svg>',
+  voile:    '<svg class="i" viewBox="0 0 24 24"><circle cx="9" cy="8.6" r="3.4" fill="var(--orange)" stroke="none"/><path d="M8.2 18.6h8.6a3.6 3.6 0 0 0 .3-7.2 5 5 0 0 0-9.4 1.3 3 3 0 0 0 .5 5.9z" fill="rgba(255,255,255,.9)" stroke="none"/></svg>',
+  nuage:    '<svg class="i" viewBox="0 0 24 24"><path d="M7.4 19h9.4a3.9 3.9 0 0 0 .3-7.8 5.4 5.4 0 0 0-10.2 1.4A3.3 3.3 0 0 0 7.4 19z" fill="rgba(255,255,255,.9)" stroke="none"/></svg>',
+  brume:    '<svg class="i" viewBox="0 0 24 24" style="stroke:rgba(255,255,255,.85);stroke-width:2"><path d="M3 8.5h18M5 12.5h14M3 16.5h18"/></svg>',
+  bruine:   '<svg class="i" viewBox="0 0 24 24"><path d="M7.4 15.4h9.4a3.9 3.9 0 0 0 .3-7.8A5.4 5.4 0 0 0 6.9 9a3.3 3.3 0 0 0 .5 6.4z" fill="rgba(255,255,255,.9)" stroke="none"/><path d="M9.5 18v2M14.5 18v2" style="stroke:var(--vert);stroke-width:2.4"/></svg>',
+  pluie:    '<svg class="i" viewBox="0 0 24 24"><path d="M7.4 14.6h9.4a3.9 3.9 0 0 0 .3-7.8A5.4 5.4 0 0 0 6.9 8.2a3.3 3.3 0 0 0 .5 6.4z" fill="rgba(255,255,255,.9)" stroke="none"/><path d="M8.6 17.2 7.4 20.6M12 17.2l-1.2 3.4M15.4 17.2l-1.2 3.4" style="stroke:#7fc4f2;stroke-width:2.4"/></svg>',
+  neige:    '<svg class="i" viewBox="0 0 24 24"><path d="M7.4 14.6h9.4a3.9 3.9 0 0 0 .3-7.8A5.4 5.4 0 0 0 6.9 8.2a3.3 3.3 0 0 0 .5 6.4z" fill="rgba(255,255,255,.9)" stroke="none"/><path d="M9 18.4v.01M12 20v.01M15 18.4v.01" style="stroke:#cfe9ff;stroke-width:3"/></svg>',
+  orage:    '<svg class="i" viewBox="0 0 24 24"><path d="M7.4 14.2h9.4a3.9 3.9 0 0 0 .3-7.8A5.4 5.4 0 0 0 6.9 7.8a3.3 3.3 0 0 0 .5 6.4z" fill="rgba(255,255,255,.9)" stroke="none"/><path d="m12.6 16-3 4h3l-1 3" style="stroke:var(--orange);stroke-width:2.4"/></svg>'
+};
+function icone(code) {
+  if (code === 0) return ICONES.soleil;
+  if (code === 1 || code === 2) return ICONES.voile;
+  if (code === 3) return ICONES.nuage;
+  if (code === 45 || code === 48) return ICONES.brume;
+  if (code >= 51 && code <= 57) return ICONES.bruine;
+  if ((code >= 61 && code <= 67) || (code >= 80 && code <= 82)) return ICONES.pluie;
+  if ((code >= 71 && code <= 77) || code === 85 || code === 86) return ICONES.neige;
+  if (code >= 95) return ICONES.orage;
+  return ICONES.nuage;
+}
+
+async function chargerMeteo() {
+  const url = 'https://api.open-meteo.com/v1/forecast'
+    + '?latitude=' + CONFIG.latitude + '&longitude=' + CONFIG.longitude
+    + '&current=temperature_2m,apparent_temperature,weather_code,wind_speed_10m,relative_humidity_2m'
+    + '&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max'
+    + '&timezone=Europe%2FBrussels&forecast_days=4';
+  const stop = new AbortController();
+  const minuteur = setTimeout(() => stop.abort(), 9000);   // jamais d'attente infinie
+  try {
+    const r = await fetch(url, { signal: stop.signal, cache: 'no-store' });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const data = await r.json();
+    if (!data || !data.current || !data.daily) throw new Error('réponse incomplète');
+    meteo = { data: data, releve: Date.now() };
+    Memoire.ecrire('ajr-meteo', meteo);
+  } catch (e) {
+    // On garde le dernier relevé connu : la vue ne se vide jamais.
+  } finally {
+    clearTimeout(minuteur);
+    afficherMeteo();
+  }
+}
+
+function afficherMeteo() {
+  const hote = $('#meteo-corps');
+  if (!meteo || !meteo.data) {
+    hote.innerHTML = '<div class="carte maintenant"><div class="indispo">Météo momentanément indisponible.</div></div><div class="jours"></div>';
+    return;
+  }
+  const d = meteo.data, c = d.current, j = d.daily;
+  const heures = Math.round((Date.now() - meteo.releve) / 3600000);
+  const perime = heures >= 3
+    ? '<div class="perime">Dernier relevé il y a ' + heures + ' h</div>' : '';
+
+  const nomJour = i => i === 1 ? 'demain'
+    : new Date(j.time[i] + 'T12:00:00').toLocaleDateString('fr-BE', { weekday: 'long' });
+
+  const jours = [1, 2, 3].map(i =>
+      '<div class="carte jour">'
+    +   '<div class="nom">' + nomJour(i) + '</div>'
+    +   '<div class="ic">' + icone(j.weather_code[i]) + '</div>'
+    +   '<div class="tt"><b>' + Math.round(j.temperature_2m_max[i]) + '°</b> '
+    +     '<span>/ ' + Math.round(j.temperature_2m_min[i]) + '°</span></div>'
+    + '</div>').join('');
+
+  hote.innerHTML =
+      '<div class="carte maintenant">'
+    +   '<div class="ville">' + CONFIG.ville + '</div>'
+    +   '<div class="temp">' + icone(c.weather_code)
+    +     '<div class="deg">' + Math.round(c.temperature_2m) + '°</div></div>'
+    +   '<div class="mesures">'
+    +     mesure('M4 14a4 4 0 1 0 4 0V5a2 2 0 1 0-4 0zM6 14h.01', 'Ressenti ' + Math.round(c.apparent_temperature) + '°')
+    +     mesure('M3 8h12a3 3 0 1 0-3-3M3 12h16a3 3 0 1 1-3 3M3 16h9', Math.round(c.wind_speed_10m) + ' km/h')
+    +     mesure('M12 3.5c3 4 5 6.4 5 9a5 5 0 0 1-10 0c0-2.6 2-5 5-9z', c.relative_humidity_2m + ' % d\'humidité')
+    +     mesure('M7 15.5h9.5a3.9 3.9 0 0 0 .3-7.8A5.4 5.4 0 0 0 6.5 9a3.3 3.3 0 0 0 .5 6.5zM10 18.5v2M14 18.5v2',
+               (j.precipitation_probability_max[0] == null ? 0 : j.precipitation_probability_max[0]) + ' % de pluie')
+    +   '</div>' + perime
+    + '</div>'
+    + '<div class="jours">' + jours + '</div>';
+}
+function mesure(trace, texte) {
+  return '<div class="mesure"><svg class="i" viewBox="0 0 24 24"><path d="' + trace + '"/></svg><span>' + texte + '</span></div>';
+}
+
+function tropChaud() {
+  if (OPT.has('chaleur')) return true;
+  if (!meteo || !meteo.data) return false;
+  const t = meteo.data.daily.temperature_2m_max[0];
+  return typeof t === 'number' && t >= CONFIG.seuilChaleur;
+}
+
+chargerMeteo();
+setInterval(chargerMeteo, CONFIG.rafraichirMeteo * 60000);
+
+/* ═══════════════════════════════════════════════════════════════════
+   ANNONCE EXCEPTIONNELLE
+   ═══════════════════════════════════════════════════════════════════ */
+(function preparerAnnonce() {
+  const t = (CONFIG.annonce && CONFIG.annonce.titre || '').trim();
+  if (!t) return;
+  $('#annonce-titre').textContent = t;
+  $('#annonce-detail').textContent = (CONFIG.annonce.detail || '').trim();
+})();
+const annonceActive = () => !!(CONFIG.annonce && (CONFIG.annonce.titre || '').trim());
+
+/* ═══════════════════════════════════════════════════════════════════
+   IMAGES — une image absente ne doit jamais casser la mise en page
+   ═══════════════════════════════════════════════════════════════════ */
+$$('#scene img').forEach(img => {
+  img.addEventListener('error', () => {
+    const fig = img.closest('figure');
+    (fig || img).style.visibility = 'hidden';
+  });
+});
+
+/* ═══════════════════════════════════════════════════════════════════
+   ROTATION DES VUES
+   Avancement par setTimeout, jauge par animation CSS : aucune boucle
+   permanente, donc une charge processeur quasi nulle sur 24 h.
+   ═══════════════════════════════════════════════════════════════════ */
+const VUES = [
+  { id: 'v-accueil' },
+  { id: 'v-annonce',     visible: annonceActive, sansMessageInutile: true },
+  { id: 'v-vision' },
+  { id: 'v-engagements' },
+  { id: 'v-secu' },
+  { id: 'v-c32a' },
+  { id: 'v-compteur',    entree: () => animerNombre($('#compteur-nombre'), joursSansAccident()) },
+  { id: 'v-alcool' },
+  { id: 'v-meteo',       visible: () => !!(meteo && meteo.data), entree: afficherMeteo },
+  { id: 'v-equipe' },
+  { id: 'v-hydra',       visible: tropChaud }
+].map(v => {
+  const el = document.getElementById(v.id);
+  return Object.assign({}, v, {
+    el: el,
+    duree: (parseFloat(el.dataset.duree) || 10) * 1000,
+    accent: el.dataset.accent || '--vert'
+  });
+});
+
+const elPoints = $('#points'), elJauge = $('#jauge');
+let actives = [], index = -1, courante = null;
+let minuteur = null, filet = null, debutVue = 0, restant = 0, enPause = false;
+let dernierChangement = Date.now();
+
+function listeActive() {
+  // ?tout=1 force les vues conditionnelles, sauf celles qui n'auraient
+  // rien à montrer (une annonce sans texte reste masquée).
+  const l = VUES.filter(v => {
+    if (!v.visible) return true;
+    if (v.sansMessageInutile) return v.visible();
+    return OPT.has('tout') || v.visible();
+  });
+  return l.length ? l : [VUES[0]];
+}
+
+function afficher(n) {
+  clearTimeout(minuteur);
+  actives = listeActive();
+  index = ((n % actives.length) + actives.length) % actives.length;
+  const v = actives[index];
+
+  VUES.forEach(x => x.el.classList.toggle('on', x === v));
+  scene.style.setProperty('--accent', 'var(' + v.accent + ')');
+
+  // Relance de la jauge (on force un reflow pour redémarrer l'animation)
+  elJauge.classList.remove('court');
+  void elJauge.offsetWidth;
+  elJauge.style.setProperty('--duree', (v.duree / 1000) + 's');
+  elJauge.classList.add('court');
+
+  elPoints.innerHTML = actives
+    .map((_, k) => '<i class="' + (k === index ? 'active' : k < index ? 'faite' : '') + '"></i>').join('');
+
+  // Filet de sécurité : au-delà du temps d'animation, on force l'état final.
+  VUES.forEach(x => x.el.classList.remove('sure'));
+  clearTimeout(filet);
+  filet = setTimeout(() => v.el.classList.add('sure'), 1400);
+
+  courante = v;
+  debutVue = Date.now();
+  restant = v.duree;
+  dernierChangement = Date.now();
+  if (v.entree) { try { v.entree(); } catch (e) { /* une vue ne doit jamais bloquer la rotation */ } }
+  if (!enPause) minuteur = setTimeout(() => afficher(index + 1), v.duree);
+}
+
+function deplacer(pas) { afficher(index + pas); }
+
+function basculerPause() {
+  enPause = !enPause;
+  document.body.classList.toggle('pause', enPause);
+  if (enPause) {
+    clearTimeout(minuteur);
+    restant = Math.max(500, courante.duree - (Date.now() - debutVue));
+  } else {
+    debutVue = Date.now() - (courante.duree - restant);
+    minuteur = setTimeout(() => afficher(index + 1), restant);
+  }
+}
+
+/* Chien de garde : si la rotation se fige (onglet gelé, erreur inattendue),
+   la page se recharge d'elle-même plutôt que de rester bloquée à l'écran. */
+setInterval(() => {
+  if (enPause) return;
+  const limite = (courante ? courante.duree : 15000) * 4 + 60000;
+  if (Date.now() - dernierChangement > limite) location.reload();
+}, 30000);
+
+/* ═══════════════════════════════════════════════════════════════════
+   COMMANDES CLAVIER
+   → / ←  changer de vue     espace  pause     F  plein écran
+   ═══════════════════════════════════════════════════════════════════ */
+addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight') deplacer(1);
+  else if (e.key === 'ArrowLeft') deplacer(-1);
+  else if (e.key === ' ') { e.preventDefault(); basculerPause(); }
+  else if (e.key === 'f' || e.key === 'F') {
+    if (document.fullscreenElement) document.exitFullscreen();
+    else document.documentElement.requestFullscreen().catch(() => {});
+  }
+});
+
+/* ═══════════════════════════════════════════════════════════════════
+   DÉMARRAGE
+   ═══════════════════════════════════════════════════════════════════ */
+const depart = parseInt(OPT.get('vue'), 10);
+afficher(Number.isFinite(depart) ? depart - 1 : 0);
+</script>
+</body>
+</html>
