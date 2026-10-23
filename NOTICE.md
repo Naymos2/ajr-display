@@ -3,7 +3,9 @@
 Page d'affichage pour le téléviseur de l'accueil. Une seule page web, conçue
 pour tourner en continu sans intervention.
 
-## Lancer l'écran
+Pour la mise en ligne sur GitHub Pages, voir `HEBERGEMENT.md`.
+
+## Lancer l'écran (en local, pour travailler dessus)
 
 Dans le dossier `ajr-display`, démarrer un petit serveur local :
 
