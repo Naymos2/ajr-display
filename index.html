@@ -123,7 +123,11 @@ svg.i { fill:none; stroke:currentColor; stroke-width:1.75; stroke-linecap:round;
   position:relative; height:100%; display:flex; flex-direction:column;
   align-items:center; justify-content:center; gap:44px;
 }
-#v-accueil .marque { width:860px; }
+#v-accueil .cartouche {
+  background:#fff; border-radius:40px; padding:58px 76px;
+  box-shadow:0 34px 90px rgba(0,0,0,.42);
+}
+#v-accueil .cartouche img { display:block; width:740px; }
 #v-accueil .mot {
   font-family:'Campton','Avenir Next','Century Gothic',Futura,'Trebuchet MS',sans-serif; font-weight:700; font-size:168px;
   letter-spacing:.055em; text-transform:uppercase; line-height:1;
@@ -266,14 +270,6 @@ svg.i { fill:none; stroke:currentColor; stroke-width:1.75; stroke-linecap:round;
 
 #rail .gauche { display:flex; align-items:center; gap:34px; }
 #rail .logo { height:58px; width:auto; }
-.compteur-chip {
-  display:flex; align-items:baseline; gap:12px;
-  padding:10px 24px; border-radius:999px;
-  background:rgba(255,255,255,.10); border:1.5px solid rgba(255,255,255,.20);
-}
-.compteur-chip b { font-family:'Campton','Avenir Next','Century Gothic',Futura,'Trebuchet MS',sans-serif; font-weight:800; font-size:38px; color:var(--vert); font-variant-numeric:tabular-nums; }
-.compteur-chip span { font-size:22px; color:var(--encre-2); }
-
 #points { display:flex; gap:11px; align-items:center; }
 #points i { display:block; width:11px; height:11px; border-radius:50%; background:rgba(255,255,255,.30); }
 #points i.faite { background:rgba(255,255,255,.60); }
@@ -308,7 +304,7 @@ body.pause #jauge { animation-play-state:paused; }
     </div>
     <div class="voile"></div>
     <div class="centre">
-      <img class="marque" src="assets/logo-full-white.png" alt="Atelier Jean Regniers">
+      <div class="cartouche"><img src="assets/logo-full.png" alt="Atelier Jean Regniers"></div>
       <div class="mot">Bienvenue</div>
       <div class="ruban">
         <i style="background:var(--bleu);border:1px solid rgba(255,255,255,.3)"></i>
@@ -503,7 +499,6 @@ body.pause #jauge { animation-play-state:paused; }
     <div id="jauge"></div>
     <div class="gauche">
       <img class="logo" src="assets/logo-lockup-white.png" alt="Atelier Jean Regniers">
-      <div class="compteur-chip"><b id="chip-jours">—</b><span>jours sans accident</span></div>
     </div>
     <div id="points"></div>
     <div class="droite">
@@ -521,7 +516,7 @@ body.pause #jauge { animation-play-state:paused; }
    ═══════════════════════════════════════════════════════════════════ */
 const CONFIG = {
   // Date du dernier accident de travail. Le compteur se met à jour tout seul.
-  dernierAccident: '2026-06-17',
+  dernierAccident: '2026-10-05',
 
   // Message exceptionnel. Laissez titre vide ("") pour masquer la vue Annonce.
   annonce: { titre: '', detail: '' },
@@ -601,8 +596,6 @@ function joursSansAccident() {
   return Math.max(0, Math.round((aujourdhui - depart) / 86400000));
 }
 function majCompteur() {
-  const n = joursSansAccident();
-  $('#chip-jours').textContent = n === null ? '—' : n;
   const depuis = new Date(CONFIG.dernierAccident + 'T12:00:00');
   $('#compteur-depuis').textContent = isNaN(depuis) ? ''
     : 'Depuis le ' + depuis.toLocaleDateString('fr-BE', { day: 'numeric', month: 'long', year: 'numeric' });
