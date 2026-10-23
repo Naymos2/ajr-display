@@ -130,7 +130,18 @@ svg.i { fill:none; stroke:currentColor; stroke-width:1.75; stroke-linecap:round;
   position:relative; height:100%; display:flex; flex-direction:column;
   align-items:center; justify-content:center; gap:52px;
 }
-#v-accueil .marque { display:block; width:820px; }
+/* Éclat de peinture clair posé derrière le logo : il détache la version
+   couleurs du fond bleu sans le rectangle blanc d'un cartouche. Les formes
+   organiques reprennent le vocabulaire du symbole de marque. */
+/* La marge réserve la hauteur de l'éclat, qui est hors flux : sans elle,
+   la tache déborderait sur le mot « Bienvenue ». */
+#v-accueil .embleme { position:relative; display:grid; place-items:center; padding:126px 0; }
+#v-accueil .eclat {
+  position:absolute; width:1280px; height:auto; pointer-events:none;
+  transform:rotate(-1.6deg);
+  filter:drop-shadow(0 20px 46px rgba(10,8,40,.38));
+}
+#v-accueil .marque { position:relative; display:block; width:700px; }
 #v-accueil .mot {
   font-family:'Campton','Avenir Next','Century Gothic',Futura,'Trebuchet MS',sans-serif; font-weight:700; font-size:168px;
   letter-spacing:.055em; text-transform:uppercase; line-height:1;
@@ -308,7 +319,19 @@ body.pause #jauge { animation-play-state:paused; }
     </div>
     <div class="voile"></div>
     <div class="centre">
-      <img class="marque" src="assets/logo-full-white.png" alt="Atelier Jean Regniers">
+      <div class="embleme">
+        <svg class="eclat" viewBox="0 0 1000 420" aria-hidden="true">
+          <g fill="#f8f8fc">
+            <path d="M48 214C34 132 98 56 194 44c68-8 122 18 188 12 68-6 114-36 188-30 74 6 110 40 178 40 86 0 162-24 204 36 46 64 34 146-2 204-36 58-104 86-180 82-76-4-122-22-192-16-72 6-118 28-192 32-82 4-162 6-228-28C86 338 62 298 48 214z"/>
+            <ellipse cx="22" cy="300" rx="17" ry="15"/>
+            <ellipse cx="972" cy="52" rx="13" ry="12"/>
+            <ellipse cx="120" cy="26" rx="10" ry="9"/>
+            <ellipse cx="990" cy="352" rx="10" ry="9"/>
+            <ellipse cx="56" cy="86" rx="8" ry="7"/>
+          </g>
+        </svg>
+        <img class="marque" src="assets/logo-full.png" alt="Atelier Jean Regniers">
+      </div>
       <div class="mot">Bienvenue</div>
       <div class="ruban">
         <i style="background:var(--vert)"></i>
