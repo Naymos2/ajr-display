@@ -118,11 +118,14 @@ svg.i { fill:none; stroke:currentColor; stroke-width:1.75; stroke-linecap:round;
 #v-accueil .mosaique { position:absolute; inset:0; display:grid; grid-template-columns:repeat(3,1fr); grid-template-rows:repeat(2,1fr); }
 /* Flou statique, calculé une seule fois : il efface les raccords entre les
    photos sans coût d'affichage continu. */
-#v-accueil .mosaique img { width:100%; height:100%; object-fit:cover; filter:grayscale(1) contrast(.7) brightness(1.2) blur(4px); opacity:.62; transform:scale(1.04); }
-/* Vue claire, à l'image des pages du brandbook : le logo s'affiche en
-   couleurs sur un fond blanc, sans cadre rapporté. */
+#v-accueil .mosaique img { width:100%; height:100%; object-fit:cover; filter:grayscale(1) blur(3px); opacity:.38; transform:scale(1.04); }
+/* Fond sombre, conforme à la charte : sur fond bleu, le logo est en blanc
+   (brandbook p.6). La couleur vient des halos repris de la palette. */
 #v-accueil .voile { position:absolute; inset:0; background:
-  linear-gradient(180deg, rgba(249,249,252,.93) 0%, rgba(243,243,249,.94) 100%); }
+  radial-gradient(760px 520px at 13% 76%, rgba(230,0,125,.26) 0%, transparent 70%),
+  radial-gradient(860px 580px at 87% 18%, rgba(241,119,0,.24) 0%, transparent 70%),
+  radial-gradient(640px 470px at 78% 86%, rgba(171,190,0,.18) 0%, transparent 72%),
+  radial-gradient(1250px 760px at 50% 46%, rgba(34,31,100,.58) 0%, rgba(21,19,62,.93) 82%); }
 #v-accueil .centre {
   position:relative; height:100%; display:flex; flex-direction:column;
   align-items:center; justify-content:center; gap:52px;
@@ -131,7 +134,7 @@ svg.i { fill:none; stroke:currentColor; stroke-width:1.75; stroke-linecap:round;
 #v-accueil .mot {
   font-family:'Campton','Avenir Next','Century Gothic',Futura,'Trebuchet MS',sans-serif; font-weight:700; font-size:168px;
   letter-spacing:.055em; text-transform:uppercase; line-height:1;
-  color:var(--bleu);
+  text-shadow:0 10px 44px rgba(0,0,0,.35);
 }
 #v-accueil .ruban { display:flex; gap:12px; }
 #v-accueil .ruban i { display:block; width:78px; height:9px; border-radius:5px; }
@@ -305,10 +308,9 @@ body.pause #jauge { animation-play-state:paused; }
     </div>
     <div class="voile"></div>
     <div class="centre">
-      <img class="marque" src="assets/logo-full.png" alt="Atelier Jean Regniers">
+      <img class="marque" src="assets/logo-full-white.png" alt="Atelier Jean Regniers">
       <div class="mot">Bienvenue</div>
       <div class="ruban">
-        <i style="background:var(--bleu)"></i>
         <i style="background:var(--vert)"></i>
         <i style="background:var(--orange)"></i>
         <i style="background:var(--rose)"></i>
