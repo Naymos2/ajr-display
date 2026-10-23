@@ -70,22 +70,28 @@ démarrage. L'écran se remet en route tout seul après une coupure de courant.
 Une Smart TV qui ouvre une adresse web fonctionne aussi, mais beaucoup n'ont
 ni plein écran ni réouverture automatique après extinction.
 
-## Décision 3 — Le type de dalle
+## Décision 3 — Réglages du téléviseur
 
-**Question à poser : est-ce que le téléviseur est en OLED ?**
+**Le type de dalle est réglé** : c'est du LCD à rétroéclairage LED, et non de
+l'OLED. Le bandeau du bas est affiché en permanence, mais sur cette
+technologie il n'y a pas de marquage définitif — tout au plus une rémanence
+passagère qui s'efface seule. Aucune précaution particulière à prendre, et
+rien à ajouter dans la page.
 
-Le bandeau du bas, avec le logo et l'horloge, est affiché en permanence. Sur
-une dalle OLED, un élément fixe douze heures par jour finit par marquer
-l'écran de façon définitive. Sur du LCD ou LED, il n'y a aucun risque.
-
-Si la dalle est OLED, préviens-moi : j'ajoute un léger déplacement
-automatique du contenu de quelques pixels, ce qui supprime le problème.
-
-À vérifier également côté téléviseur :
+Restent les réglages d'image :
 
 - **surbalayage (overscan) désactivé**, sinon les bords sont rognés ;
 - **extinction automatique désactivée** ;
-- mode d'image « PC » ou « Jeu » si disponible, pour un rendu net du texte.
+- mode d'image « PC » ou « Jeu » si disponible, pour un rendu net du texte ;
+- **rétroéclairage autour de 60 à 70 %** plutôt qu'au maximum : c'est plus
+  confortable dans un hall et cela ménage le rétroéclairage, qui s'use à
+  l'usage.
+
+Un point à vérifier si le téléviseur est un modèle grand public : beaucoup
+sont prévus pour six à huit heures d'utilisation par jour, là où les écrans
+professionnels tiennent seize à vingt-quatre heures. Certains fabricants
+excluent même l'usage commercial de la garantie. Si l'écran doit tourner
+toute la journée, la question mérite d'être posée.
 
 ---
 
@@ -98,10 +104,14 @@ automatique du contenu de quelques pixels, ce qui supprime le problème.
    contrôle d'accès ?
 3. Qu'est-ce qui pilote le téléviseur de l'accueil aujourd'hui, et peut-on
    y brancher un petit boîtier dédié ?
-4. La dalle du téléviseur est-elle OLED ou LCD ?
-5. Peut-on autoriser `api.open-meteo.com` en sortie depuis ce poste ?
+4. Peut-on autoriser `api.open-meteo.com` en sortie depuis ce poste ?
+5. Le téléviseur est-il prévu pour un fonctionnement continu, ou s'agit-il
+   d'un modèle grand public limité à quelques heures par jour ?
 6. Qui gère le boîtier au quotidien, pour la veille, les mises à jour et le
    redémarrage automatique ?
+
+La question du type de dalle est réglée : LCD à rétroéclairage LED, donc
+aucun risque de marquage.
 
 ## Une question pour le service achats, pas pour l'IT
 
