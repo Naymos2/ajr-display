@@ -112,8 +112,6 @@ l'humain et l'administratif.
 index.html          la page complète
 NOTICE.md           ce document
 assets/
-  logo-full.png            logo couleurs avec la signature
-  logo-full-white.png      idem, en blanc
   logo-lockup.png          logo couleurs sans la signature
   logo-lockup-white.png    idem, en blanc
   symbol.png               le symbole seul
